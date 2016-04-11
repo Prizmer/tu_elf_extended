@@ -1003,7 +1003,9 @@ namespace elfextendedapp
         public bool OpenLinkCanal(byte meterLocalNumber)
         {
             //SND_NKE
+            this.m_address = (uint)meterLocalNumber;
             this.m_addr = meterLocalNumber;
+
             byte cmd = 0x40;
             byte CS = (byte)(cmd + m_addr);
 

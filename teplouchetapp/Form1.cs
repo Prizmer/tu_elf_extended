@@ -712,7 +712,7 @@ namespace elfextendedapp
             {
                 int i = rowsList[m];
 
-                int tmpNumb = 0;
+                byte tmpNumb = 0x0;
                 object o = dt.Rows[i][columnIndexFactory];
                 object oColResult = dt.Rows[i][columnIndexResult];
 
@@ -721,7 +721,7 @@ namespace elfextendedapp
                 if (bPollOnlyOffline && (oColResult.ToString() == METER_IS_ONLINE))
                     continue;
 
-                if (o != null && int.TryParse(o.ToString(), out tmpNumb))
+                if (o != null &&  byte.TryParse(o.ToString(), out tmpNumb))
                 {
                         List<float> valList = new List<float>();
                         for (int c = 0; c < attempts + 1; c++)
@@ -734,7 +734,7 @@ namespace elfextendedapp
                             Thread.Sleep(50);
 
                             //выбираем счетчик по серийному номеру (служит также проверкой связи) - в случае успеха приходит 0xE5
-                            if (Meter.OpenLinkCanal((byte)tmpNumb))
+                            if (Meter.OpenLinkCanal(tmpNumb))
                             {
                                 Thread.Sleep(50);
                                 if (Meter.ReadCurrentValues(paramCodes, out valList))
