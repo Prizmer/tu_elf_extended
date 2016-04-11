@@ -562,8 +562,8 @@ namespace elfextendedapp
                         {
                             if (doStopProcess) goto END;
                             if (c == 0) dt.Rows[i][columnIndexResult] = METER_WAIT;
-                            
-                            if (Meter.SelectBySecondaryId(tmpNumb))
+
+                            if (Meter.OpenLinkCanal((byte)tmpNumb))
                             {
                                 dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
                                 break;
@@ -734,7 +734,7 @@ namespace elfextendedapp
                             Thread.Sleep(50);
 
                             //выбираем счетчик по серийному номеру (служит также проверкой связи) - в случае успеха приходит 0xE5
-                            if (Meter.SelectBySecondaryId(tmpNumb))
+                            if (Meter.OpenLinkCanal((byte)tmpNumb))
                             {
                                 Thread.Sleep(50);
                                 if (Meter.ReadCurrentValues(paramCodes, out valList))

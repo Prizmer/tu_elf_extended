@@ -998,6 +998,48 @@ namespace elfextendedapp
             }
         }
 
+
+        //Метод для совместимости с оболочкой. Также задает сетевой номер счетчика
+        public bool OpenLinkCanal(byte meterLocalNumber)
+        {
+            //SND_NKE
+            this.m_addr = meterLocalNumber;
+            byte cmd = 0x40;
+            byte CS = (byte)(cmd + m_addr);
+
+            byte[] cmdArr = { 0x10, cmd, m_addr, CS, 0x16 };
+            byte[] inp = new byte[256];
+
+            try
+            {
+                //режим, когда незнаем сколько байт нужно принять
+                m_vport.WriteReadData(findPackageSign, cmdArr, ref inp, cmdArr.Length, -1);
+
+                if (inp == null || inp.Length == 0)
+                {
+                    WriteToLog("Не получен ответ при чтении серийного номера");
+                    return false;
+                }
+
+                if (inp[inp.Length - 1] == 0xE5)
+                {
+                    return true;
+                }
+                else
+                {
+                    WriteToLog("В ответе SND_NKE не найден подтверждающий байт 0xE5");
+                    return false;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                WriteToLog("Ошибка при чтении серийного номера: " + ex.Message);
+                return false;
+            }
+        }
+
         /// <summary>
         /// Чтение серийного номера устройства (из RSP_UD, а не из заголовка)
         /// </summary>
