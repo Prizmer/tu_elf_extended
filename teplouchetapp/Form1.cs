@@ -25,7 +25,7 @@ namespace elfextendedapp
 
             this.Text = FORM_TEXT_DEFAULT;
 
-            DeveloperMode = true;
+            DeveloperMode = false;
             if (DeveloperMode) this.Height -= groupBox1.Height;
 
             InProgress = false;
@@ -144,7 +144,7 @@ namespace elfextendedapp
             const string METER_WAIT = "Ждите";
             const string REPEAT_REQUEST = "Повтор";
 
-            const string FORM_TEXT_DEFAULT = "ELF Apator - расширенная программа опроса v.1.0";
+            const string FORM_TEXT_DEFAULT = "ELF Apator - расширенная программа опроса v.1.1";
             const string FORM_TEXT_DEMO_OFF = " - демо режим ОТКЛЮЧЕН";
             const string FORM_TEXT_DEV_ON = " - режим разработчика";
 
