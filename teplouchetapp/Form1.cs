@@ -1258,7 +1258,7 @@ namespace elfextendedapp
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control && e.Shift && e.KeyCode == Keys.D0)
+            if (e.Control && e.Shift && e.KeyCode == Keys.A)
                 DeveloperMode = !DeveloperMode;
             else if (e.Control && e.Shift && e.KeyCode == Keys.D)
                 DemoMode = !DemoMode;

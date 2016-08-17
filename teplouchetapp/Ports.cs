@@ -409,7 +409,7 @@ namespace elfextendedapp
                 //очередь для поддержки делегатов в старых драйверах
                 Queue<byte> reading_queue = new Queue<byte>(8192);
                 List<byte> readBytesList = new List<byte>(8192);
-
+     
                 try
                 {
                     //пишем в порт команду, ограниченную out_length
@@ -445,9 +445,10 @@ namespace elfextendedapp
                     Thread.Sleep(100);
                 }
 
+                WriteToLog("WriteReadData: received bytes: " + BitConverter.ToString(readBytesList.ToArray(), 0).Replace('-', ' '));
 
                 /*TODO: Откуда взялась константа 4, почему 4?*/
-                if (readBytesList.Count >= 4)
+                if (readBytesList.Count > 0)
                 {
                     /*попытаемся определить начало полезных данных в буфере-на-вход
                         при помощи связанного делегата*/
