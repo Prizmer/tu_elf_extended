@@ -403,68 +403,75 @@ namespace elfextendedapp
 
         private void loadXlsFile()
         {
-            doStopProcess = false;
-            buttonStop.Enabled = true;
-
-            dt = new DataTable();
-            createMainTable(ref dt);
-                       
-            string fileName = ofd1.FileName;
-            Workbook book = Workbook.Load(fileName);
-           
-            int rowsInFile = 0;
-            for (int i = 0; i < book.Worksheets.Count; i++)
-                rowsInFile += book.Worksheets[i].Cells.LastRowIndex - firstRowIndex;
-
-            //setting up progress bar
-            toolStripProgressBar1.Minimum = 0;
-            toolStripProgressBar1.Maximum = rowsInFile;
-            toolStripProgressBar1.Step = 1;
-
-
-            //filling internal data table with *.xls file data according to *.config file
-            for (int i = 0; i < book.Worksheets.Count; i++)
+            try
             {
-                Worksheet sheet = book.Worksheets[i];
-                for (int rowIndex = firstRowIndex; rowIndex <= sheet.Cells.LastRowIndex; rowIndex++)
+                doStopProcess = false;
+                buttonStop.Enabled = true;
+
+                dt = new DataTable();
+                createMainTable(ref dt);
+
+                string fileName = ofd1.FileName;
+                Workbook book = Workbook.Load(fileName);
+
+                int rowsInFile = 0;
+                for (int i = 0; i < book.Worksheets.Count; i++)
+                    rowsInFile += book.Worksheets[i].Cells.LastRowIndex - firstRowIndex;
+
+                //setting up progress bar
+                toolStripProgressBar1.Minimum = 0;
+                toolStripProgressBar1.Maximum = rowsInFile;
+                toolStripProgressBar1.Step = 1;
+
+
+                //filling internal data table with *.xls file data according to *.config file
+                for (int i = 0; i < book.Worksheets.Count; i++)
                 {
-                    if (doStopProcess)
+                    Worksheet sheet = book.Worksheets[i];
+                    for (int rowIndex = firstRowIndex; rowIndex <= sheet.Cells.LastRowIndex; rowIndex++)
                     {
-                        buttonStop.Enabled = false;
-                        return;
+                        if (doStopProcess)
+                        {
+                            buttonStop.Enabled = false;
+                            return;
+                        }
+
+                        Row row_l = sheet.Cells.GetRow(rowIndex);
+                        DataRow dataRow = dt.NewRow();
+
+                        object oFlatNumber = row_l.GetCell(flatNumberColumnIndex).Value;
+                        int iFlatNumber = 0;
+
+                        if (oFlatNumber != null && int.TryParse(oFlatNumber.ToString(), out iFlatNumber))
+                        {
+                            dataRow[0] = iFlatNumber;
+                            incrProgressBar();
+                        }
+                        else
+                        {
+                            incrProgressBar();
+                            continue;
+                        }
+
+                        dataRow[1] = row_l.GetCell(factoryNumberColumnIndex).Value;
+
+                        dt.Rows.Add(dataRow);
                     }
-
-                    Row row_l = sheet.Cells.GetRow(rowIndex);
-                    DataRow dataRow = dt.NewRow();
-
-                    object oFlatNumber = row_l.GetCell(flatNumberColumnIndex).Value;
-                    int iFlatNumber = 0;
-
-                    if (oFlatNumber != null && int.TryParse(oFlatNumber.ToString(), out iFlatNumber))
-                    {
-                        dataRow[0] = iFlatNumber;
-                        incrProgressBar();
-                    }
-                    else
-                    {
-                        incrProgressBar();
-                        continue;
-                    }
-
-                    dataRow[1] = row_l.GetCell(factoryNumberColumnIndex).Value;
-
-                    dt.Rows.Add(dataRow);
                 }
+
+
+                dgv1.DataSource = dt;
+
+                toolStripProgressBar1.Value = 0;
+                toolStripProgressBar1.Maximum = dt.Rows.Count - 1;
+                toolStripStatusLabel1.Text = String.Format("({0}/{1})", toolStripProgressBar1.Value, toolStripProgressBar1.Maximum);
+
+                InputDataReady = true;
             }
-
-
-            dgv1.DataSource = dt;
-
-            toolStripProgressBar1.Value = 0;
-            toolStripProgressBar1.Maximum = dt.Rows.Count - 1;
-            toolStripStatusLabel1.Text = String.Format("({0}/{1})", toolStripProgressBar1.Value, toolStripProgressBar1.Maximum);
-
-            InputDataReady = true;
+            catch (Exception ex)
+            {
+                MessageBox.Show("Невозможно загрузить таблицу, проверьте что файл не открыт в другой программе", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         private void buttonImport_Click(object sender, EventArgs e)
         {
@@ -721,142 +728,152 @@ namespace elfextendedapp
                 if (bPollOnlyOffline && (oColResult.ToString() == METER_IS_ONLINE))
                     continue;
 
-                if (o != null &&  byte.TryParse(o.ToString(), out tmpNumb))
+                if (o != null)
                 {
-                        List<float> valList = new List<float>();
-                        for (int c = 0; c < attempts + 1; c++)
+                    byte addressByte = 0;
+                    try
+                    {
+                        addressByte = Convert.ToByte(o.ToString(), 16);
+                    }
+                    catch (Exception ex)
+                    {
+                        goto PREEND;
+                    }
+
+                    List<float> valList = new List<float>();
+                    for (int c = 0; c < attempts + 1; c++)
+                    {
+                        if (doStopProcess) goto END;
+                        if (c == 0) dt.Rows[i][columnIndexResult] = METER_WAIT;
+
+                        //если вдруг не снята селекция с предыдущего счетчика, запросим ее снятие повторно
+                        Meter.UnselectAllMeters();
+                        Thread.Sleep(50);
+
+                        //выбираем счетчик по серийному номеру (служит также проверкой связи) - в случае успеха приходит 0xE5
+                        if (Meter.OpenLinkCanal(tmpNumb))
                         {
-                            if (doStopProcess) goto END;
-                            if (c == 0) dt.Rows[i][columnIndexResult] = METER_WAIT;
-
-                            //если вдруг не снята селекция с предыдущего счетчика, запросим ее снятие повторно
-                            Meter.UnselectAllMeters();
                             Thread.Sleep(50);
-
-                            //выбираем счетчик по серийному номеру (служит также проверкой связи) - в случае успеха приходит 0xE5
-                            if (Meter.OpenLinkCanal(tmpNumb))
+                            if (Meter.ReadCurrentValues(paramCodes, out valList))
                             {
-                                Thread.Sleep(50);
-                                if (Meter.ReadCurrentValues(paramCodes, out valList))
+                                //Если данные получены успешно, не факт что они верные субъективно. Например, со счетчиков ТЕПЛОУЧЕТ
+                                //иногда приходят нулевые показания температур (КС правильная). Однако через некоторое время, с тогоже
+                                //счетчика приходят верные значения температур. Эти ситуации необходимо обрабатывать.
+                                //убрал проверку - в случае с эльфом они пока не нужны
+                                if (false && !isDataCorrect(valList))
                                 {
-                                    //Если данные получены успешно, не факт что они верные субъективно. Например, со счетчиков ТЕПЛОУЧЕТ
-                                    //иногда приходят нулевые показания температур (КС правильная). Однако через некоторое время, с тогоже
-                                    //счетчика приходят верные значения температур. Эти ситуации необходимо обрабатывать.
-                                    //убрал проверку - в случае с эльфом они пока не нужны
-                                    if (false && !isDataCorrect(valList))
+                                    if (DemoMode)
                                     {
-                                        if (DemoMode)
-                                        {
-                                            string msg = String.Format("Данные для счетчика № {0} в квартире {1} субъективно неверные (isDataCorrect == false), выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
-                                            getSampleMeterData(out valList);
-                                            WriteToLog(msg);
-                                        }
-                                        else
-                                        {
-                                            //1. Записать в лог номер счетчика
-                                            string msg = String.Format("Данные для счетчика № {0} в квартире {1} субъективно неверные (isDataCorrect == false)", dt.Rows[i][1], dt.Rows[i][0]);
-                                            WriteToLog(msg);
-                                            WriteToSeparateLog(msg + ": " + String.Join(", ", valList.ToArray()));
-                                        }
-                                    }
-
-                                    //убрал проверку
-                                    if (false && !isTemperatureCorrect(valList))
-                                    {
-                                        //если температура неверна: заносим строку в список повторно опрашиваемых приборов,
-                                        //пишем - ждите и переходим к следующему прибору
-                                        string msg = String.Format("Показания температур счетчика № {0} в квартире {1} субъективно неверные (isTemperatureCorrect == false)", dt.Rows[i][1], dt.Rows[i][0]);
+                                        string msg = String.Format("Данные для счетчика № {0} в квартире {1} субъективно неверные (isDataCorrect == false), выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
+                                        getSampleMeterData(out valList);
                                         WriteToLog(msg);
-                                        WriteToSeparateLog(msg + ": " + String.Join(", ", valList.ToArray()));
-
-                                        dt.Rows[i][columnIndexResult] = METER_WAIT;
-                                        rowsWithIncorrectResults.Add(i);
-                                        break;
-                                    }
-
-
-                                    //все нормально, выводим данные которые пришли
-                                    for (int k = 0; k < valList.Count; k++)
-                                        dt.Rows[i][columnIndexResult + 1 + k] = valList[k];
-
-                                    dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
-                                    break;
-                                }
-                                else
-                                {
-                                    if (c < attempts)
-                                    {
-                                        dt.Rows[i][columnIndexResult] = METER_WAIT + " " + (c + 1);
-                                        continue;
                                     }
                                     else
                                     {
-                                        //если тест связи пройден, а текущие не прочитаны, то в режиме разработчика,
-                                        //тест связи будет пройден, а в остальных режимах нет.
-                                        if (DemoMode)
-                                        {
-                                            dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
-
-                                            //1. Записать в лог номер счетчика
-                                            string msg = String.Format("Счетчик № {0} в квартире {1} не ответил при опросе, выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
-                                            WriteToLog(msg);
-                                            //2. Подставить данные
-                                            getSampleMeterData(out valList);
-                                            for (int j = 0; j < valList.Count; j++)
-                                                dt.Rows[i][columnIndexResult + 1 + j] = valList[j];
-                                        }
-                                        else
-                                        {
-                                            dt.Rows[i][columnIndexResult] = METER_IS_OFFLINE;
-                                            string msg = String.Format("Счетчик № {0} в квартире {1}  не ответил при опросе", dt.Rows[i][1], dt.Rows[i][0]);
-                                            WriteToLog(msg);
-                                        }
+                                        //1. Записать в лог номер счетчика
+                                        string msg = String.Format("Данные для счетчика № {0} в квартире {1} субъективно неверные (isDataCorrect == false)", dt.Rows[i][1], dt.Rows[i][0]);
+                                        WriteToLog(msg);
+                                        WriteToSeparateLog(msg + ": " + String.Join(", ", valList.ToArray()));
                                     }
                                 }
+
+                                //убрал проверку
+                                if (false && !isTemperatureCorrect(valList))
+                                {
+                                    //если температура неверна: заносим строку в список повторно опрашиваемых приборов,
+                                    //пишем - ждите и переходим к следующему прибору
+                                    string msg = String.Format("Показания температур счетчика № {0} в квартире {1} субъективно неверные (isTemperatureCorrect == false)", dt.Rows[i][1], dt.Rows[i][0]);
+                                    WriteToLog(msg);
+                                    WriteToSeparateLog(msg + ": " + String.Join(", ", valList.ToArray()));
+
+                                    dt.Rows[i][columnIndexResult] = METER_WAIT;
+                                    rowsWithIncorrectResults.Add(i);
+                                    break;
+                                }
+
+
+                                //все нормально, выводим данные которые пришли
+                                for (int k = 0; k < valList.Count; k++)
+                                    dt.Rows[i][columnIndexResult + 1 + k] = valList[k];
+
+                                dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
+                                break;
                             }
                             else
                             {
                                 if (c < attempts)
                                 {
                                     dt.Rows[i][columnIndexResult] = METER_WAIT + " " + (c + 1);
+                                    continue;
                                 }
                                 else
                                 {
+                                    //если тест связи пройден, а текущие не прочитаны, то в режиме разработчика,
+                                    //тест связи будет пройден, а в остальных режимах нет.
                                     if (DemoMode)
                                     {
                                         dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
 
+                                        //1. Записать в лог номер счетчика
+                                        string msg = String.Format("Счетчик № {0} в квартире {1} не ответил при опросе, выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
+                                        WriteToLog(msg);
                                         //2. Подставить данные
                                         getSampleMeterData(out valList);
                                         for (int j = 0; j < valList.Count; j++)
                                             dt.Rows[i][columnIndexResult + 1 + j] = valList[j];
-                                        //1. Записать в лог номер счетчика
-                                        string msg = String.Format("Счетчик № {0} в квартире {1} не прошел тест связи, выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
-                                        WriteToLog(msg);
                                     }
                                     else
                                     {
                                         dt.Rows[i][columnIndexResult] = METER_IS_OFFLINE;
-                                        //1. Записать в лог номер счетчика
-                                        string msg = String.Format("Счетчик № {0} в квартире {1} не прошел тест связи", dt.Rows[i][1], dt.Rows[i][0]);
+                                        string msg = String.Format("Счетчик № {0} в квартире {1}  не ответил при опросе", dt.Rows[i][1], dt.Rows[i][0]);
                                         WriteToLog(msg);
                                     }
                                 }
                             }
                         }
-
-                        //убрал проверку - не нужна для эльфа
-                        if (false && DemoMode && !isDataCorrect(valList))
+                        else
                         {
-                            //1. Записать в лог номер счетчика
-                            string msg = String.Format("Итоговые данные для счетчика № {0} в квартире {1} субъективно неверные, выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
-                            WriteToLog(msg);
-                            //2. Подставить данные
-                            getSampleMeterData(out valList);
+                            if (c < attempts)
+                            {
+                                dt.Rows[i][columnIndexResult] = METER_WAIT + " " + (c + 1);
+                            }
+                            else
+                            {
+                                if (DemoMode)
+                                {
+                                    dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
+
+                                    //2. Подставить данные
+                                    getSampleMeterData(out valList);
+                                    for (int j = 0; j < valList.Count; j++)
+                                        dt.Rows[i][columnIndexResult + 1 + j] = valList[j];
+                                    //1. Записать в лог номер счетчика
+                                    string msg = String.Format("Счетчик № {0} в квартире {1} не прошел тест связи, выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
+                                    WriteToLog(msg);
+                                }
+                                else
+                                {
+                                    dt.Rows[i][columnIndexResult] = METER_IS_OFFLINE;
+                                    //1. Записать в лог номер счетчика
+                                    string msg = String.Format("Счетчик № {0} в квартире {1} не прошел тест связи", dt.Rows[i][1], dt.Rows[i][0]);
+                                    WriteToLog(msg);
+                                }
+                            }
                         }
+                    }
+
+                    //убрал проверку - не нужна для эльфа
+                    if (false && DemoMode && !isDataCorrect(valList))
+                    {
+                        //1. Записать в лог номер счетчика
+                        string msg = String.Format("Итоговые данные для счетчика № {0} в квартире {1} субъективно неверные, выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
+                        WriteToLog(msg);
+                        //2. Подставить данные
+                        getSampleMeterData(out valList);
+                    }
                 }
 
-
+            PREEND:
 
                 Invoke(meterPinged);
                 Meter.UnselectAllMeters();
