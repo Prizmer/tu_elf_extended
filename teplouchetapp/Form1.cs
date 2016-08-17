@@ -563,48 +563,55 @@ namespace elfextendedapp
 
                 if (oColFactory != null)
                 {
-                    if (int.TryParse(oColFactory.ToString(), out tmpNumb))
+                    byte addressByte = 0;
+                    try
                     {
-                        for (int c = 0; c < attempts + 1; c++)
-                        {
-                            if (doStopProcess) goto END;
-                            if (c == 0) dt.Rows[i][columnIndexResult] = METER_WAIT;
+                        addressByte = Convert.ToByte(oColFactory.ToString(), 16);
+                    }
+                    catch (Exception ex)
+                    {
+                        goto PREEND;
+                    }
+                    tmpNumb = addressByte;
 
-                            if (Meter.OpenLinkCanal((byte)tmpNumb))
+                    for (int c = 0; c < attempts + 1; c++)
+                    {
+                        if (doStopProcess) goto END;
+                        if (c == 0) dt.Rows[i][columnIndexResult] = METER_WAIT;
+
+                        if (Meter.OpenLinkCanal((byte)tmpNumb))
+                        {
+                            dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
+                            break;
+                        }
+                        else
+                        {
+                            if (c < attempts)
                             {
-                                dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
-                                break;
-                            }
-                            else
+                                dt.Rows[i][columnIndexResult] = METER_WAIT + " " + (c + 1);
+                            }else
                             {
-                                if (c < attempts)
+                                if (DemoMode)
                                 {
-                                    dt.Rows[i][columnIndexResult] = METER_WAIT + " " + (c + 1);
-                                }else
+                                    //1.Записать в лог
+                                    string msg = String.Format("Счетчик № {0} в квартире {1} не ответил при тесте связи, вполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
+                                    WriteToLog(msg);
+                                    //2.Подставить данные
+                                    dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
+                                }
+                                else
                                 {
-                                    if (DemoMode)
-                                    {
-                                        //1.Записать в лог
-                                        string msg = String.Format("Счетчик № {0} в квартире {1} не ответил при тесте связи, вполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
-                                        WriteToLog(msg);
-                                        //2.Подставить данные
-                                        dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
-                                    }
-                                    else
-                                    {
-                                        dt.Rows[i][columnIndexResult] = METER_IS_OFFLINE;
-                                        //1.Записать в лог
-                                        string msg = String.Format("Счетчик № {0} в квартире {1} не ответил при тесте связи", dt.Rows[i][1], dt.Rows[i][0]);
-                                        WriteToLog(msg);
-                                    }
+                                    dt.Rows[i][columnIndexResult] = METER_IS_OFFLINE;
+                                    //1.Записать в лог
+                                    string msg = String.Format("Счетчик № {0} в квартире {1} не ответил при тесте связи", dt.Rows[i][1], dt.Rows[i][0]);
+                                    WriteToLog(msg);
                                 }
                             }
                         }
-
                     }
                 }
 
-
+            PREEND:
 
                 Meter.UnselectAllMeters();
                 Invoke(meterPinged);
@@ -686,9 +693,20 @@ namespace elfextendedapp
                 object o = dt.Rows[i][columnIndexFactory];
                 object oColResult = dt.Rows[i][columnIndexResult];
 
-                if (o != null && int.TryParse(o.ToString(), out tmpNumb))
+                if (o != null)
                 {
-                    List<float> valList = new List<float>();
+                    byte addressByte = 0;
+                    try
+                    {
+                        addressByte = Convert.ToByte(o.ToString(), 16);
+                        tmpNumb = addressByte;
+                        List<float> valList = new List<float>();
+                    }
+                    catch (Exception ex)
+                    {
+                        continue;
+                    }
+
                 }
             }
         }
@@ -739,6 +757,7 @@ namespace elfextendedapp
                     {
                         goto PREEND;
                     }
+                    tmpNumb = addressByte;
 
                     List<float> valList = new List<float>();
                     for (int c = 0; c < attempts + 1; c++)
@@ -924,141 +943,150 @@ namespace elfextendedapp
 
                 if (o != null)
                 {
-                    if (int.TryParse(o.ToString(), out tmpNumb))
+                    byte addressByte = 0;
+                    try
                     {
-                        List<float> valList = new List<float>();
-                        for (int c = 0; c < attempts + 1; c++)
+                        addressByte = Convert.ToByte(o.ToString(), 16);
+                    }
+                    catch (Exception ex)
+                    {
+                        goto PREEND;
+                    }
+                    tmpNumb = addressByte;
+
+                    List<float> valList = new List<float>();
+                    for (int c = 0; c < attempts + 1; c++)
+                    {
+                        if (doStopProcess) goto END;
+                        if (c == 0) dt.Rows[i][columnIndexResult] = METER_WAIT;
+
+                        //возможно не снята селекция?
+                        Meter.UnselectAllMeters();
+
+                        if (c > 0)
+                            Thread.Sleep(200);
+                        else
+                            Thread.Sleep(50);
+
+                        //служит также проверкой связи
+                        if (Meter.SelectBySecondaryId(tmpNumb))
                         {
-                            if (doStopProcess) goto END;
-                            if (c == 0) dt.Rows[i][columnIndexResult] = METER_WAIT;
-
-                            //возможно не снята селекция?
-                            Meter.UnselectAllMeters();
-
-                            if (c > 0)
-                                Thread.Sleep(200);
-                            else
-                                Thread.Sleep(50);
-
-                            //служит также проверкой связи
-                            if (Meter.SelectBySecondaryId(tmpNumb))
+                            Thread.Sleep(50);
+                            if (Meter.ReadCurrentValues(paramCodes, out valList))
                             {
-                                Thread.Sleep(50);
-                                if (Meter.ReadCurrentValues(paramCodes, out valList))
-                                {
-                                    if (!isDataCorrect(valList)){
-                                        if (DemoMode)
-                                        {
-                                            string msg = String.Format("Данные для счетчика № {0} в квартире {1} субъективно неверные (isDataCorrect == false), выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
-                                            getSampleMeterData(out valList);
-                                            WriteToLog(msg);
-                                        }
-                                        else
-                                        {
-                                            //1. Записать в лог номер счетчика
-                                            string msg = String.Format("Данные для счетчика № {0} в квартире {1} субъективно неверные (isDataCorrect == false)", dt.Rows[i][1], dt.Rows[i][0]);
-                                            WriteToLog(msg);
-                                            WriteToSeparateLog(msg + ": " + String.Join(", ", valList.ToArray()));     
-                                        }
-                                    }
-
-                                    if (!isTemperatureCorrect(valList))
+                                if (!isDataCorrect(valList)){
+                                    if (DemoMode)
                                     {
-                                        string msg = String.Format("Показания температур счетчика № {0} в квартире {1} субъективно неверные (isTemperatureCorrect == false)", dt.Rows[i][1], dt.Rows[i][0]);
+                                        string msg = String.Format("Данные для счетчика № {0} в квартире {1} субъективно неверные (isDataCorrect == false), выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
+                                        getSampleMeterData(out valList);
                                         WriteToLog(msg);
-                                        WriteToSeparateLog(msg + ": " + String.Join(", ", valList.ToArray()));
-
-                                        dt.Rows[i][columnIndexResult] = METER_WAIT;
-                                        rowsWithIncorrectResults.Add(i);
-                                        break;
-                                    }
-
-
-                                    //все нормально, выводим данные которые пришли
-                                    for (int j = 0; j < valList.Count; j++)
-                                        dt.Rows[i][columnIndexResult + 1 + j] = valList[j];
-
-                                    dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
-                                    break;
-                                }
-                                else
-                                {
-                                    if (c < attempts)
-                                    {
-                                        dt.Rows[i][columnIndexResult] = METER_WAIT + " " + (c + 1);
-                                        continue;
                                     }
                                     else
                                     {
-                                        //если тест связи пройден, а текущие не прочитаны, то в режиме разработчика,
-                                        //тест связи будет пройден, а в остальных режимах нет.
-                                        if (DemoMode)
-                                        {
-                                            dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
-
-                                            //1. Записать в лог номер счетчика
-                                            string msg = String.Format("Счетчик № {0} в квартире {1} не ответил при опросе, выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
-                                            WriteToLog(msg);
-                                            //2. Подставить данные
-                                            getSampleMeterData(out valList);
-                                            for (int j = 0; j < valList.Count; j++)
-                                                dt.Rows[i][columnIndexResult + 1 + j] = valList[j];
-                                        }
-                                        else
-                                        {
-                                            dt.Rows[i][columnIndexResult] = METER_IS_OFFLINE;
-                                            string msg = String.Format("Счетчик № {0} в квартире {1}  не ответил при опросе", dt.Rows[i][1], dt.Rows[i][0]);
-                                            WriteToLog(msg);
-                                        }
+                                        //1. Записать в лог номер счетчика
+                                        string msg = String.Format("Данные для счетчика № {0} в квартире {1} субъективно неверные (isDataCorrect == false)", dt.Rows[i][1], dt.Rows[i][0]);
+                                        WriteToLog(msg);
+                                        WriteToSeparateLog(msg + ": " + String.Join(", ", valList.ToArray()));     
                                     }
                                 }
+
+                                if (!isTemperatureCorrect(valList))
+                                {
+                                    string msg = String.Format("Показания температур счетчика № {0} в квартире {1} субъективно неверные (isTemperatureCorrect == false)", dt.Rows[i][1], dt.Rows[i][0]);
+                                    WriteToLog(msg);
+                                    WriteToSeparateLog(msg + ": " + String.Join(", ", valList.ToArray()));
+
+                                    dt.Rows[i][columnIndexResult] = METER_WAIT;
+                                    rowsWithIncorrectResults.Add(i);
+                                    break;
+                                }
+
+
+                                //все нормально, выводим данные которые пришли
+                                for (int j = 0; j < valList.Count; j++)
+                                    dt.Rows[i][columnIndexResult + 1 + j] = valList[j];
+
+                                dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
+                                break;
                             }
                             else
                             {
                                 if (c < attempts)
                                 {
                                     dt.Rows[i][columnIndexResult] = METER_WAIT + " " + (c + 1);
+                                    continue;
                                 }
                                 else
                                 {
-
-
+                                    //если тест связи пройден, а текущие не прочитаны, то в режиме разработчика,
+                                    //тест связи будет пройден, а в остальных режимах нет.
                                     if (DemoMode)
                                     {
                                         dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
 
+                                        //1. Записать в лог номер счетчика
+                                        string msg = String.Format("Счетчик № {0} в квартире {1} не ответил при опросе, выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
+                                        WriteToLog(msg);
                                         //2. Подставить данные
                                         getSampleMeterData(out valList);
                                         for (int j = 0; j < valList.Count; j++)
                                             dt.Rows[i][columnIndexResult + 1 + j] = valList[j];
-                                        //1. Записать в лог номер счетчика
-                                        string msg = String.Format("Счетчик № {0} в квартире {1} не прошел тест связи, выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
-                                        WriteToLog(msg);
                                     }
                                     else
                                     {
                                         dt.Rows[i][columnIndexResult] = METER_IS_OFFLINE;
-                                        //1. Записать в лог номер счетчика
-                                        string msg = String.Format("Счетчик № {0} в квартире {1} не прошел тест связи", dt.Rows[i][1], dt.Rows[i][0]);
+                                        string msg = String.Format("Счетчик № {0} в квартире {1}  не ответил при опросе", dt.Rows[i][1], dt.Rows[i][0]);
                                         WriteToLog(msg);
                                     }
                                 }
                             }
                         }
-
-
-                        if (DemoMode && !isDataCorrect(valList))
+                        else
                         {
-                            //1. Записать в лог номер счетчика
-                            string msg = String.Format("Итоговые данные для счетчика № {0} в квартире {1} субъективно неверные, выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
-                            WriteToLog(msg);
-                            //2. Подставить данные
-                            getSampleMeterData(out valList);
+                            if (c < attempts)
+                            {
+                                dt.Rows[i][columnIndexResult] = METER_WAIT + " " + (c + 1);
+                            }
+                            else
+                            {
+
+
+                                if (DemoMode)
+                                {
+                                    dt.Rows[i][columnIndexResult] = METER_IS_ONLINE;
+
+                                    //2. Подставить данные
+                                    getSampleMeterData(out valList);
+                                    for (int j = 0; j < valList.Count; j++)
+                                        dt.Rows[i][columnIndexResult + 1 + j] = valList[j];
+                                    //1. Записать в лог номер счетчика
+                                    string msg = String.Format("Счетчик № {0} в квартире {1} не прошел тест связи, выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
+                                    WriteToLog(msg);
+                                }
+                                else
+                                {
+                                    dt.Rows[i][columnIndexResult] = METER_IS_OFFLINE;
+                                    //1. Записать в лог номер счетчика
+                                    string msg = String.Format("Счетчик № {0} в квартире {1} не прошел тест связи", dt.Rows[i][1], dt.Rows[i][0]);
+                                    WriteToLog(msg);
+                                }
+                            }
                         }
+                    }
+
+
+                    if (DemoMode && !isDataCorrect(valList))
+                    {
+                        //1. Записать в лог номер счетчика
+                        string msg = String.Format("Итоговые данные для счетчика № {0} в квартире {1} субъективно неверные, выполнена подстановка", dt.Rows[i][1], dt.Rows[i][0]);
+                        WriteToLog(msg);
+                        //2. Подставить данные
+                        getSampleMeterData(out valList);
                     }
                 }
 
       
+            PREEND:
 
                 Invoke(meterPinged);
                 Meter.UnselectAllMeters();
@@ -1271,24 +1299,30 @@ namespace elfextendedapp
             richTextBox1.Clear();
             string str_fact_n = textBox1.Text;
             int tmpNumb = -1;
-            if (int.TryParse(str_fact_n, out tmpNumb))
+
+            byte addressByte = 0;
+            try
             {
-                //служит также проверкой связи
-                if (Meter.SelectBySecondaryId(tmpNumb))
-                {
-                    string resStr = "Метод драйвера GetAllValues вернул false";
-                    Meter.GetAllValues(out resStr);
-                    richTextBox1.Text = resStr;
-                    Meter.UnselectAllMeters();
-                }
-                else
-                {
-                    richTextBox1.Text = "Связь с прибором " + tmpNumb.ToString() + " НЕ установлена";
-                }
+                addressByte = Convert.ToByte(str_fact_n.ToString(), 16);
+            }
+            catch (Exception ex)
+            {
+                richTextBox1.Text = "Невозможно преобразовать серийный номер в число";
+                return;
+            }
+            tmpNumb = addressByte;
+
+            //служит также проверкой связи
+            if (Meter.SelectBySecondaryId(tmpNumb))
+            {
+                string resStr = "Метод драйвера GetAllValues вернул false";
+                Meter.GetAllValues(out resStr);
+                richTextBox1.Text = resStr;
+                Meter.UnselectAllMeters();
             }
             else
             {
-                richTextBox1.Text = "Невозможно преобразовать серийный номер в число";
+                richTextBox1.Text = "Связь с прибором " + tmpNumb.ToString() + " НЕ установлена";
             }
         }
 
