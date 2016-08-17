@@ -1029,7 +1029,8 @@ namespace elfextendedapp
                 }
                 else
                 {
-                    WriteToLog("В ответе SND_NKE не найден подтверждающий байт 0xE5");
+                    string infoStr = String.Format("В ответе SND_NKE не найден подтверждающий байт 0xE5.\nПолучены байты: [0];", BitConverter.ToString(inp, 0).Replace('-', ' '));
+                    WriteToLog(infoStr);
                     return false;
                 }
 
