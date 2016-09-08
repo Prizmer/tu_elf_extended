@@ -120,13 +120,12 @@ namespace elfextendedapp
                     buttonStop.Enabled = false;
                     numericUpDownComReadTimeout.Enabled = false;
                     checkBoxPollOffline.Enabled = false;
-
                 }
                 else
                 {
                     comboBoxComPorts.Enabled = true;
                     buttonPoll.Enabled = true;
-                    buttonPing.Enabled = true;
+                    if (!cbModePreVals.Checked) buttonPing.Enabled = true;
                     buttonImport.Enabled = true;
                     buttonExport.Enabled = true;
                     buttonStop.Enabled = false;
@@ -163,6 +162,12 @@ namespace elfextendedapp
         int flatNumberColumnIndex = 0;
         int factoryNumberColumnIndex = 1;
         int firstRowIndex = 1;
+        
+        //предустановка значений
+        int imp1ValColumnIndex = 2;
+        int imp2ValColumnIndex = 3;
+        int imp1ValPriceColumnIndex = 4;
+        int imp2ValPriceColumnIndex = 5;
 
         private bool initMeterDriver(uint mAddr, string mPass, VirtualPort virtPort)
         {
@@ -273,6 +278,11 @@ namespace elfextendedapp
                 factoryNumberColumnIndex = int.Parse(ConfigurationSettings.AppSettings["factoryColumn"]) - 1;
                 firstRowIndex = int.Parse(ConfigurationSettings.AppSettings["firstRow"]) - 1;
 
+                //предустановка значений
+                imp1ValColumnIndex = int.Parse(ConfigurationSettings.AppSettings["imp1ValColumnIndex"]) - 1;
+                imp2ValColumnIndex = int.Parse(ConfigurationSettings.AppSettings["imp2ValColumnIndex"]) - 1;
+                imp1ValPriceColumnIndex = int.Parse(ConfigurationSettings.AppSettings["imp1ValPriceColumnIndex"]) - 1;
+                imp2ValPriceColumnIndex = int.Parse(ConfigurationSettings.AppSettings["imp2ValPriceColumnIndex"]) - 1;
                 return true;
             }
             catch (Exception ex)
@@ -335,64 +345,95 @@ namespace elfextendedapp
             column.Caption = "Счетчик";
             column.ColumnName = "colFactory";
 
-            column = dt.Columns.Add();
-            column.DataType = typeof(string);
-            column.Caption = "На связи  ";
-            column.ColumnName = "colOnline";
+            if (!cbModePreVals.Checked)
+            {
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "На связи  ";
+                column.ColumnName = "colOnline";
 
-            column = dt.Columns.Add();
-            column.DataType = typeof(string);
-            column.Caption = "Энергия (КВтЧ)";
-            column.ColumnName = "colEnergy";
-            paramCodes.Add(3);
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Энергия (КВтЧ)";
+                column.ColumnName = "colEnergy";
+                paramCodes.Add(3);
 
-            column = dt.Columns.Add();
-            column.DataType = typeof(string);
-            column.Caption = "Объем (м3)";
-            column.ColumnName = "colVolume";
-            paramCodes.Add(4);
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Объем (м3)";
+                column.ColumnName = "colVolume";
+                paramCodes.Add(4);
 
-            column = dt.Columns.Add();
-            column.DataType = typeof(string);
-            column.Caption = "Оим1 (м3)";
-            column.ColumnName = "colImpVolume1";
-            paramCodes.Add(5);
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Оим1 (м3)";
+                column.ColumnName = "colImpVolume1";
+                paramCodes.Add(5);
+            }
+            else
+            {
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Имп.1";
+                column.ColumnName = "colImp1Val";
 
-            column = dt.Columns.Add();
-            column.DataType = typeof(string);
-            column.Caption = "Оим2 (м3)";
-            column.ColumnName = "colImpVolume2";
-            paramCodes.Add(6);
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Имп.2";
+                column.ColumnName = "colImp2Val";
+                paramCodes.Add(3);
 
-            column = dt.Columns.Add();
-            column.DataType = typeof(string);
-            column.Caption = "Оим3 (м3)";
-            column.ColumnName = "colImpVolume3";
-            paramCodes.Add(7);
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Цена 1 (л/имп)";
+                column.ColumnName = "colImp1ValPrice";
+                paramCodes.Add(4);
 
-            column = dt.Columns.Add();
-            column.DataType = typeof(string);
-            column.Caption = "Оим4 (м3)";
-            column.ColumnName = "colImpVolume4";
-            paramCodes.Add(8);
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Цена 2 (л/имп)";
+                column.ColumnName = "colImp2ValPrice";
+                paramCodes.Add(5);
+            }
 
-            column = dt.Columns.Add();
-            column.DataType = typeof(string);
-            column.Caption = "Т.входа (С)";
-            column.ColumnName = "colTempInp";
-            paramCodes.Add(11);
+            if (!cbModePreVals.Checked)
+            {
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Оим2 (м3)";
+                column.ColumnName = "colImpVolume2";
+                paramCodes.Add(6);
 
-            column = dt.Columns.Add();
-            column.DataType = typeof(string);
-            column.Caption = "Т.выхода (С)";
-            column.ColumnName = "colTempOutp";
-            paramCodes.Add(12);
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Оим3 (м3)";
+                column.ColumnName = "colImpVolume3";
+                paramCodes.Add(7);
 
-            column = dt.Columns.Add();
-            column.DataType = typeof(string);
-            column.Caption = "Вр.работы (Ч)";
-            column.ColumnName = "colTimeOn";
-            paramCodes.Add(13);
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Оим4 (м3)";
+                column.ColumnName = "colImpVolume4";
+                paramCodes.Add(8);
+
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Т.входа (С)";
+                column.ColumnName = "colTempInp";
+                paramCodes.Add(11);
+
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Т.выхода (С)";
+                column.ColumnName = "colTempOutp";
+                paramCodes.Add(12);
+
+                column = dt.Columns.Add();
+                column.DataType = typeof(string);
+                column.Caption = "Вр.работы (Ч)";
+                column.ColumnName = "colTimeOn";
+                paramCodes.Add(13);
+            }
 
             DataRow captionRow = dt.NewRow();
             for (int i = 0; i < dt.Columns.Count; i++)
@@ -454,6 +495,12 @@ namespace elfextendedapp
                         }
 
                         dataRow[1] = row_l.GetCell(factoryNumberColumnIndex).Value;
+
+                        //предустановленные
+                        dataRow[2] = row_l.GetCell(imp1ValColumnIndex).Value;
+                        dataRow[3] = row_l.GetCell(imp2ValColumnIndex).Value;
+                        dataRow[4] = row_l.GetCell(imp1ValPriceColumnIndex).Value;
+                        dataRow[5] = row_l.GetCell(imp2ValPriceColumnIndex).Value;
 
                         dt.Rows.Add(dataRow);
                     }
@@ -712,11 +759,90 @@ namespace elfextendedapp
         }
 
 
+        private void setPreVals(PollMetersArguments pmaInp)
+        {
+            DataTable dt = pmaInp.dt;
+            List<int> incorrectRows = pmaInp.incorrectRows;
+            int columnIndexFactory = 1;
+            int columnIndexImpVal1 = 2;
+            int columnIndexImpVal2 = 3;
+            int columnIndexImpValPrice1 = 4;
+            int columnIndexImpValPrice2 = 5;
+
+            List<int> rowsWithIncorrectResults = new List<int>();
+
+            //если список строк не определен, источник заполняется номерами строк доступных
+            //в таблице, иначе - определенными номерами 
+            List<int> rowsList = new List<int>();
+            for (int i = 1; i < dt.Rows.Count; i++) rowsList.Add(i);
+
+            List<string> factoryNumbers = new List<string>();
+
+            for (int m = 0; m < rowsList.Count; m++)
+            {
+                int i = rowsList[m];
+                byte tmpNumb = 0x0;
+                object o = dt.Rows[i][columnIndexFactory];
+
+                int imp1Val = int.Parse(dt.Rows[i][columnIndexImpVal1].ToString());
+                int imp2Val = int.Parse(dt.Rows[i][columnIndexImpVal2].ToString());
+                int imp1ValPrice = int.Parse(dt.Rows[i][columnIndexImpValPrice1].ToString());
+                int imp2ValPrice = int.Parse(dt.Rows[i][columnIndexImpValPrice2].ToString());
+
+                if (o != null)
+                {
+                    byte addressByte = 0;
+                    try
+                    {
+                        addressByte = Convert.ToByte(o.ToString(), 16);
+                    }
+                    catch (Exception ex)
+                    {
+                        goto PREEND;
+                    }
+                    tmpNumb = addressByte;
+
+                    //если вдруг не снята селекция с предыдущего счетчика, запросим ее снятие повторно
+                    Meter.UnselectAllMeters();
+                    Thread.Sleep(50);
+
+                    //выбираем счетчик по серийному номеру (служит также проверкой связи) - в случае успеха приходит 0xE5
+                    if (Meter.OpenLinkCanal(tmpNumb))
+                    {
+                        Thread.Sleep(50);
+                        Meter.ChangeImpulseInputDefaultValue(1, imp1Val);
+                        Thread.Sleep(10);
+                        Meter.ChangeImpulseInputDefaultValue(2, imp2Val);
+                    }
+                }
+
+            PREEND:
+
+                Invoke(meterPinged);
+                Meter.UnselectAllMeters();
+
+                if (doStopProcess)
+                    break;
+            }
+
+        END:
+            Invoke(pollingEnd);
+
+
+        }
+
         private void pollMeters(Object pollMetersArgs)
         {
+
             PollMetersArguments pmaInp = (PollMetersArguments)pollMetersArgs;
             DataTable dt = pmaInp.dt;
             List<int> incorrectRows = pmaInp.incorrectRows;
+
+            if (cbModePreVals.Checked)
+            {
+                setPreVals(pmaInp);
+                return;
+            }
 
             int columnIndexFactory = 1;
             int columnIndexResult = 2;
@@ -1333,6 +1459,20 @@ namespace elfextendedapp
         private void pictureBoxLogo_Click(object sender, EventArgs e)
         {
             Process.Start("http://prizmer.ru/");
+        }
+
+        private void cbModePreVals_CheckedChanged(object sender, EventArgs e)
+        {
+            if (((CheckBox)sender).Checked)
+            {
+                buttonPoll.Text = "Старт";
+                buttonPing.Enabled = false;
+            }
+            else
+            {
+                buttonPoll.Text = "Опрос";
+                buttonPing.Enabled = true;
+            }
         }
     }
 }

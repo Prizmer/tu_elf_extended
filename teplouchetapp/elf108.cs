@@ -1481,6 +1481,28 @@ namespace elfextendedapp
             return true;          
         }
 
+        public bool ChangeImpulseInputDefaultValue(int inputId, int inputValue)
+        {
+            byte[] cmd = { m_addr, 0x32, 0x0a, 0x00 };
+            byte[] inputValueBytes = BitConverter.GetBytes(inputValue);
+            byte[] inputValues5BytesArr = new byte[5];
+            for (int i = 0; i < inputValueBytes.Length; i++)
+                inputValues5BytesArr[i] = inputValueBytes[i];
+            byte[] cmd_data = { (byte)inputId, 0x0, 0x0, 0x0, 0x0, inputValues5BytesArr[0], inputValues5BytesArr[1], inputValues5BytesArr[2], inputValues5BytesArr[3], inputValues5BytesArr[4] };
+
+            byte[] data_arr = new byte[1];
+            if (!SendPT01_CMD(cmd, ref data_arr, cmd_data)) return false;
+
+            byte crc_check = CRC8(data_arr, data_arr.Length);
+            if (crc_check != 0x0)
+            {
+                WriteToLog("ReadLastArchiveVal: данные приняты неверно");
+                return false;
+            }
+
+            return true;
+        }
+
         #region Неиспользуемые методы интерфейса
 
         public bool ReadSliceArrInitializationDate(ref DateTime lastInitDt)
