@@ -466,7 +466,7 @@ namespace elfextendedapp
 
 
                 //filling internal data table with *.xls file data according to *.config file
-                for (int i = 0; i < book.Worksheets.Count; i++)
+                for (int i = 0; i < 1; i++)
                 {
                     Worksheet sheet = book.Worksheets[i];
                     for (int rowIndex = firstRowIndex; rowIndex <= sheet.Cells.LastRowIndex; rowIndex++)
