@@ -218,12 +218,17 @@ namespace elfextendedapp
                         break;
                     }
                 case Params.VOLUME:
+                case Params.VOLUME_FLOW:
+                    {
+                        COEFFICIENT = 1000;
+                        break;
+                    }
                 case Params.VOLUME_IMP1:
                 case Params.VOLUME_IMP2:
                 case Params.VOLUME_IMP3:
                 case Params.VOLUME_IMP4:
-                case Params.VOLUME_FLOW:
                     {
+                        
                         COEFFICIENT = 1000;
                         break;
                     }
