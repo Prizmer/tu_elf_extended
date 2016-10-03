@@ -33,6 +33,8 @@ namespace elfextendedapp
             InProgress = false;
             DemoMode = false;
             InputDataReady = false;
+
+            checkBoxTcp.Checked = true;
         }
 
         //при опросе или тесте связи
