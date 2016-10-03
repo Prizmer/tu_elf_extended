@@ -5,8 +5,10 @@ using System.Text;
 using System.IO;
 using System.IO.Ports;
 
+//классы совместимости с СО
+using elfextendedapp;
 
-namespace elfextendedapp
+namespace ElfApatorCommonDriver
 {
     /// <summary>
     /// Описывает типовое архивное значение
@@ -28,6 +30,14 @@ namespace elfextendedapp
             this.m_address = address;
             this.m_addr = (byte)(this.m_address & 0x000000ff);
             this.m_vport = vp;
+        }
+
+        static string GetStringFromByteArray(byte[] arr)
+        {
+            string answ_str = "";
+            foreach (byte b in arr)
+                answ_str += Convert.ToString(b, 16) + " ";
+            return answ_str;
         }
 
         private byte m_addr = 0xFD;
@@ -418,10 +428,7 @@ namespace elfextendedapp
                 //режим, когда незнаем сколько байт нужно принять
                 m_vport.WriteReadData(findPackageSign, cmdArr, ref inp, cmdArr.Length, -1);
 
-                string answ_str = "";
-                foreach (byte b in inp)
-                    answ_str += Convert.ToString(b, 16) + " ";
-                WriteToLog(answ_str);
+                WriteToLog(GetStringFromByteArray(inp));
 
                 //if (inp.Length < 6)
                 //{
@@ -589,15 +596,25 @@ namespace elfextendedapp
             data_arr_list.AddRange(data_arr);
 
             //если начало правильное
-            if (data_arr_list[0] == 0x4d && data_arr_list[data_arr_list.Count - 1] == 0x16)
+
+            //все хорошо, служебная информация, обрабатывать (в этой версии) ничего не надо
+            if (data_arr_list[0] == 0x53 && data_arr_list[data_arr_list.Count - 1] == 0x16)
+            {
+                byte[] usefullDataArr = new byte[data_arr_list.Count - 2];
+                Array.Copy(data_arr, 1, usefullDataArr, 0, data_arr_list.Count - 2);
+                DecryptByteArr(usefullDataArr, ref usefullDataArr);
+                data_arr = usefullDataArr;
+                return true;
+            }
+            else if (data_arr_list[0] == 0x4d && data_arr_list[data_arr_list.Count - 1] == 0x16)
             {
                 //длина минимальной команды 6 байт
-                if (data_arr_list.Count < 6)
-                {
-                    data_arr = null;
-                    WriteToLog("SendPT01_CMD: корректный ответ не может быть меньше 6 байт по протоколу РТ");
-                    return false;
-                }
+                //if (data_arr_list.Count < 6)
+                //{
+                //    data_arr = null;
+                //    WriteToLog("SendPT01_CMD: корректный ответ не может быть меньше 6 байт по протоколу РТ");
+                //    return false;
+                //}
 
                 if (data_arr.Length == resCmd.Length)
                 {
@@ -784,7 +801,6 @@ namespace elfextendedapp
         }
 
         #endregion
-
 
         #region Новые методы, введенные для совместимости с оболочкой
 
@@ -1201,6 +1217,69 @@ namespace elfextendedapp
         #endregion
 
 
+        public bool ChangeImpulseInputDefaultValue(int inputId, int inputValue)
+        {
+            byte[] cmd = { m_addr, 0x32, 0x0a, 0x00 };
+            byte[] inputValueBytes = BitConverter.GetBytes(inputValue);
+            byte[] inputValues5BytesArr = new byte[5];
+            for (int i = 0; i < inputValueBytes.Length; i++)
+                inputValues5BytesArr[i] = inputValueBytes[i];
+            byte[] cmd_data = { (byte)inputId, 0x0, 0x0, 0x0, 0x0, inputValues5BytesArr[0], inputValues5BytesArr[1], inputValues5BytesArr[2], inputValues5BytesArr[3], inputValues5BytesArr[4] };
+
+            byte[] data_arr = new byte[1];
+            if (!SendPT01_CMD(cmd, ref data_arr, cmd_data)) return false;
+
+
+            byte crc_check = CRC8(data_arr, data_arr.Length);
+            if (crc_check != 0x0)
+            {
+                WriteToLog("ChangeImpulseInputDefaultValue: данные приняты неверно");
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool ChangeImpulseInputsValPrice(int inp1, int inp2)
+        {
+            byte[] cmd = { m_addr, 0x2b, 0x35, 0x00 };
+            byte[] input1ValueBytes = BitConverter.GetBytes(inp1);
+            byte[] input2ValueBytes = BitConverter.GetBytes(inp2);
+            byte[] i1_4BArr = new byte[4];
+            byte[] i2_4BArr = new byte[4];
+
+            for (int i = 0; i < input1ValueBytes.Length; i++)
+                i1_4BArr[i] = input1ValueBytes[i];
+            for (int i = 0; i < input2ValueBytes.Length; i++)
+                i2_4BArr[i] = input2ValueBytes[i];
+
+            byte[] cmd_data = { 
+                0x01, 0x0, 0x0, 0x01,
+                0x00, 0x0, 0x0, 0x01,
+                0x00, 0x0, 0x0, 0x01,
+                0x00, 0x0, 0x0, 0x01,
+                0x00, 0x0, 0x0, 0x00,
+                i1_4BArr[0], i1_4BArr[1], i1_4BArr[2], i1_4BArr[3], 
+                i2_4BArr[0], i2_4BArr[1], i2_4BArr[2], i2_4BArr[3],
+                                0x00, 0x0, 0x0, 0x01,
+                                                0x00, 0x0, 0x0, 0x01,
+                0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+           };
+
+            byte[] data_arr = new byte[1];
+            if (!SendPT01_CMD(cmd, ref data_arr, cmd_data)) return false;
+
+            byte crc_check = CRC8(data_arr, data_arr.Length);
+            if (crc_check != 0x0)
+            {
+                WriteToLog("ReadLastArchiveVal: данные приняты неверно");
+                return false;
+            }
+
+            return true;
+        }
+
+
         public bool ReadArchiveLastVal(ref ArchiveValue archVal)
         {
             byte[] cmd = { m_addr, 0x2e, 0x02, 0x00 };
@@ -1484,28 +1563,6 @@ namespace elfextendedapp
             }
 
             return true;          
-        }
-
-        public bool ChangeImpulseInputDefaultValue(int inputId, int inputValue)
-        {
-            byte[] cmd = { m_addr, 0x32, 0x0a, 0x00 };
-            byte[] inputValueBytes = BitConverter.GetBytes(inputValue);
-            byte[] inputValues5BytesArr = new byte[5];
-            for (int i = 0; i < inputValueBytes.Length; i++)
-                inputValues5BytesArr[i] = inputValueBytes[i];
-            byte[] cmd_data = { (byte)inputId, 0x0, 0x0, 0x0, 0x0, inputValues5BytesArr[0], inputValues5BytesArr[1], inputValues5BytesArr[2], inputValues5BytesArr[3], inputValues5BytesArr[4] };
-
-            byte[] data_arr = new byte[1];
-            if (!SendPT01_CMD(cmd, ref data_arr, cmd_data)) return false;
-
-            byte crc_check = CRC8(data_arr, data_arr.Length);
-            if (crc_check != 0x0)
-            {
-                WriteToLog("ReadLastArchiveVal: данные приняты неверно");
-                return false;
-            }
-
-            return true;
         }
 
         #region Неиспользуемые методы интерфейса

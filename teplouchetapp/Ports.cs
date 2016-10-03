@@ -143,6 +143,8 @@ namespace elfextendedapp
                                                 }
                                             }
                                         }
+
+
                                     }
                                 }
                             }
@@ -163,7 +165,7 @@ namespace elfextendedapp
             return reading_size;
         }
 
-        public int WriteReadData(FindPacketSignature func, byte[] out_buffer, ref byte[] in_buffer, int out_length, int target_in_length, uint pos_count_data_size = 0, uint size_data = 0, uint header_size = 0)
+        public int WriteReadData3(FindPacketSignature func, byte[] out_buffer, ref byte[] in_buffer, int out_length, int target_in_length, uint pos_count_data_size = 0, uint size_data = 0, uint header_size = 0)
         {
             // Data buffer for incoming data.
             byte[] bytes = new byte[1024];
@@ -232,7 +234,132 @@ namespace elfextendedapp
             in_buffer = receivedBytes.ToArray();
             return receivedBytes.Count;
         }
-        
+
+
+        public int WriteReadData(FindPacketSignature func, byte[] out_buffer, ref byte[] in_buffer, int out_length, int target_in_length, uint pos_count_data_size = 0, uint size_data = 0, uint header_size = 0)
+        {
+
+            //return WriteReadData(out_buffer, ref in_buffer);
+
+            int reading_size = 0;
+            using (TcpClient tcp = new TcpClient())
+            {
+                Queue<byte> reading_queue = new Queue<byte>(8192);
+
+                try
+                {
+                    Thread.Sleep(m_delay_between_sending);
+
+                    IAsyncResult ar = tcp.BeginConnect(m_address, m_port, null, null);
+                    using (WaitHandle wh = ar.AsyncWaitHandle)
+                    {
+                        if (!ar.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(10), false))
+                        {
+                            throw new TimeoutException();
+                        }
+                        else
+                        {
+                            if (tcp.Client.Connected)
+                            {
+                                tcp.Client.ReceiveTimeout = m_read_timeout;
+                                tcp.Client.SendTimeout = m_write_timeout;
+
+                                // посылка данных
+                                if (tcp.Client.Send(out_buffer, out_length, SocketFlags.None) == out_length)
+                                {
+                                    uint elapsed_time_count = 0;
+
+                                    Thread.Sleep(50);
+
+                                    // чтение данных
+                                    while (elapsed_time_count < m_read_timeout)
+                                    {
+                                        if (tcp.Client.Available > 0)
+                                        {
+                                            try
+                                            {
+                                                byte[] tmp_buff = new byte[tcp.Available];
+                                                int readed_bytes = tcp.Client.Receive(tmp_buff, 0, tmp_buff.Length, SocketFlags.None);
+
+                                                for (int i = 0; i < readed_bytes; i++)
+                                                {
+                                                    reading_queue.Enqueue(tmp_buff[i]);
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                WriteToLog("Receive: " + ex.Message);
+                                            }
+                                        }
+                                        elapsed_time_count += 50;
+                                        Thread.Sleep(50);
+                                    }
+
+
+
+                                    int pos = -1;
+                                    if ((pos = func(reading_queue)) >= 0)
+                                    {
+                                        for (int i = 0; i < pos; i++)
+                                        {
+                                            reading_queue.Dequeue();
+                                        }
+
+                                        byte[] temp_buffer = new byte[reading_size = reading_queue.Count];
+                                        temp_buffer = reading_queue.ToArray();
+
+                                        if (target_in_length == 0)
+                                        {
+                                            if (reading_size > pos_count_data_size)
+                                            {
+                                                target_in_length = Convert.ToInt32(temp_buffer[pos_count_data_size] * size_data + header_size);
+                                            }
+                                        }
+
+                                        if (target_in_length > 0)
+                                        {
+                                            if (reading_size >= target_in_length)
+                                            {
+                                                reading_size = target_in_length;
+                                                for (int i = 0; i < target_in_length && i < in_buffer.Length; i++)
+                                                {
+                                                    in_buffer[i] = temp_buffer[i];
+                                                }
+                                            }
+                                        }
+
+                                        if (target_in_length == -1)
+                                        {
+                                            target_in_length = reading_queue.Count;
+                                            reading_size = target_in_length;
+                                            in_buffer = new byte[reading_size];
+
+                                            for (int i = 0; i < in_buffer.Length; i++)
+                                                in_buffer[i] = temp_buffer[i];
+
+                                            return reading_size;
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    WriteToLog(ex.Message);
+                    return -1;
+                }
+                finally
+                {
+                    reading_queue.Clear();
+                }
+            }
+
+            return reading_size;
+        }
+
         public void WriteToLog(string str)
         {
             if (false)

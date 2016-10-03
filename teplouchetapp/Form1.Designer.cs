@@ -76,7 +76,7 @@
             // 
             this.buttonImport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonImport.Location = new System.Drawing.Point(187, 4);
-            this.buttonImport.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonImport.Margin = new System.Windows.Forms.Padding(2);
             this.buttonImport.Name = "buttonImport";
             this.buttonImport.Size = new System.Drawing.Size(97, 25);
             this.buttonImport.TabIndex = 3;
@@ -111,7 +111,7 @@
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.dgv1.DefaultCellStyle = dataGridViewCellStyle2;
             this.dgv1.Location = new System.Drawing.Point(5, 72);
-            this.dgv1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.dgv1.Margin = new System.Windows.Forms.Padding(2);
             this.dgv1.Name = "dgv1";
             this.dgv1.ReadOnly = true;
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -135,7 +135,7 @@
             this.buttonPing.Enabled = false;
             this.buttonPing.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonPing.Location = new System.Drawing.Point(8, 36);
-            this.buttonPing.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonPing.Margin = new System.Windows.Forms.Padding(2);
             this.buttonPing.Name = "buttonPing";
             this.buttonPing.Size = new System.Drawing.Size(83, 25);
             this.buttonPing.TabIndex = 5;
@@ -149,7 +149,7 @@
             this.buttonPoll.Enabled = false;
             this.buttonPoll.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonPoll.Location = new System.Drawing.Point(99, 36);
-            this.buttonPoll.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonPoll.Margin = new System.Windows.Forms.Padding(2);
             this.buttonPoll.Name = "buttonPoll";
             this.buttonPoll.Size = new System.Drawing.Size(83, 25);
             this.buttonPoll.TabIndex = 6;
@@ -163,7 +163,7 @@
             this.buttonExport.Enabled = false;
             this.buttonExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonExport.Location = new System.Drawing.Point(287, 4);
-            this.buttonExport.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonExport.Margin = new System.Windows.Forms.Padding(2);
             this.buttonExport.Name = "buttonExport";
             this.buttonExport.Size = new System.Drawing.Size(97, 25);
             this.buttonExport.TabIndex = 41;
@@ -177,7 +177,7 @@
             this.comboBoxComPorts.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.comboBoxComPorts.FormattingEnabled = true;
             this.comboBoxComPorts.Location = new System.Drawing.Point(8, 8);
-            this.comboBoxComPorts.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.comboBoxComPorts.Margin = new System.Windows.Forms.Padding(2);
             this.comboBoxComPorts.Name = "comboBoxComPorts";
             this.comboBoxComPorts.Size = new System.Drawing.Size(85, 21);
             this.comboBoxComPorts.TabIndex = 42;
@@ -189,7 +189,7 @@
             this.toolStripProgressBar1,
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 428);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 434);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 9, 0);
             this.statusStrip1.Size = new System.Drawing.Size(629, 22);
@@ -218,7 +218,7 @@
             this.buttonStop.Enabled = false;
             this.buttonStop.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonStop.Location = new System.Drawing.Point(308, 36);
-            this.buttonStop.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonStop.Margin = new System.Windows.Forms.Padding(2);
             this.buttonStop.Name = "buttonStop";
             this.buttonStop.Size = new System.Drawing.Size(77, 25);
             this.buttonStop.TabIndex = 44;
@@ -236,7 +236,7 @@
             0,
             0});
             this.numericUpDownComReadTimeout.Location = new System.Drawing.Point(101, 10);
-            this.numericUpDownComReadTimeout.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.numericUpDownComReadTimeout.Margin = new System.Windows.Forms.Padding(2);
             this.numericUpDownComReadTimeout.Maximum = new decimal(new int[] {
             2000,
             0,
@@ -273,7 +273,7 @@
             this.checkBoxPollOffline.Enabled = false;
             this.checkBoxPollOffline.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.checkBoxPollOffline.Location = new System.Drawing.Point(191, 41);
-            this.checkBoxPollOffline.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.checkBoxPollOffline.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxPollOffline.Name = "checkBoxPollOffline";
             this.checkBoxPollOffline.Size = new System.Drawing.Size(103, 17);
             this.checkBoxPollOffline.TabIndex = 47;
@@ -292,7 +292,7 @@
             0,
             0});
             this.numericUpDownComWriteTimeout.Location = new System.Drawing.Point(321, 34);
-            this.numericUpDownComWriteTimeout.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.numericUpDownComWriteTimeout.Margin = new System.Windows.Forms.Padding(2);
             this.numericUpDownComWriteTimeout.Maximum = new decimal(new int[] {
             2000,
             0,
@@ -326,9 +326,9 @@
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.textBox1);
             this.groupBox1.Location = new System.Drawing.Point(5, 369);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox1.Size = new System.Drawing.Size(611, 57);
             this.groupBox1.TabIndex = 49;
             this.groupBox1.TabStop = false;
@@ -358,7 +358,7 @@
             // 
             this.checkBoxTcp.AutoSize = true;
             this.checkBoxTcp.Location = new System.Drawing.Point(273, 37);
-            this.checkBoxTcp.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.checkBoxTcp.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxTcp.Name = "checkBoxTcp";
             this.checkBoxTcp.Size = new System.Drawing.Size(15, 14);
             this.checkBoxTcp.TabIndex = 55;
@@ -368,7 +368,7 @@
             // textBoxPort
             // 
             this.textBoxPort.Location = new System.Drawing.Point(213, 34);
-            this.textBoxPort.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxPort.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxPort.Name = "textBoxPort";
             this.textBoxPort.Size = new System.Drawing.Size(43, 20);
             this.textBoxPort.TabIndex = 54;
@@ -377,7 +377,7 @@
             // textBoxIp
             // 
             this.textBoxIp.Location = new System.Drawing.Point(213, 14);
-            this.textBoxIp.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxIp.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxIp.Name = "textBoxIp";
             this.textBoxIp.Size = new System.Drawing.Size(75, 20);
             this.textBoxIp.TabIndex = 53;
@@ -387,7 +387,7 @@
             // 
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button4.Location = new System.Drawing.Point(152, 14);
-            this.button4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button4.Margin = new System.Windows.Forms.Padding(2);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(49, 38);
             this.button4.TabIndex = 52;
@@ -398,7 +398,7 @@
             // richTextBox1
             // 
             this.richTextBox1.Location = new System.Drawing.Point(414, 14);
-            this.richTextBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.richTextBox1.Margin = new System.Windows.Forms.Padding(2);
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.ReadOnly = true;
             this.richTextBox1.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
@@ -419,7 +419,7 @@
             // textBox1
             // 
             this.textBox1.Location = new System.Drawing.Point(8, 34);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(2);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(135, 20);
             this.textBox1.TabIndex = 49;
@@ -432,7 +432,7 @@
             this.pictureBoxLogo.Image = global::elfextendedapp.Properties.Resources.pi_logo_2;
             this.pictureBoxLogo.InitialImage = null;
             this.pictureBoxLogo.Location = new System.Drawing.Point(556, 4);
-            this.pictureBoxLogo.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pictureBoxLogo.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBoxLogo.Name = "pictureBoxLogo";
             this.pictureBoxLogo.Size = new System.Drawing.Size(61, 59);
             this.pictureBoxLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -466,7 +466,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(629, 450);
+            this.ClientSize = new System.Drawing.Size(629, 456);
             this.Controls.Add(this.cbModePreVals);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.pictureBoxLogo);
@@ -485,7 +485,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Заголовок генерируется автоматически";

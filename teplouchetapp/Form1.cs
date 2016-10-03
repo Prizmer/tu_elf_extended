@@ -15,6 +15,8 @@ using System.Threading;
 using System.Diagnostics;
 //using System.Configuration.Assemblies;
 
+using ElfApatorCommonDriver;
+
 namespace elfextendedapp
 {
     public partial class Form1 : Form
