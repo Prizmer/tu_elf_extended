@@ -63,7 +63,6 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.pictureBoxLogo = new System.Windows.Forms.PictureBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.cbModePreVals = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgv1)).BeginInit();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownComReadTimeout)).BeginInit();
@@ -189,10 +188,10 @@
             this.toolStripProgressBar1,
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 434);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 442);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 9, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(629, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(631, 22);
             this.statusStrip1.SizingGrip = false;
             this.statusStrip1.TabIndex = 43;
             this.statusStrip1.Text = "statusStrip1";
@@ -252,7 +251,7 @@
             this.numericUpDownComReadTimeout.TabIndex = 45;
             this.toolTip1.SetToolTip(this.numericUpDownComReadTimeout, "Время ожидания ответа одного счетчика");
             this.numericUpDownComReadTimeout.Value = new decimal(new int[] {
-            800,
+            1000,
             0,
             0,
             0});
@@ -306,7 +305,8 @@
             this.numericUpDownComWriteTimeout.Name = "numericUpDownComWriteTimeout";
             this.numericUpDownComWriteTimeout.Size = new System.Drawing.Size(46, 16);
             this.numericUpDownComWriteTimeout.TabIndex = 56;
-            this.toolTip1.SetToolTip(this.numericUpDownComWriteTimeout, "Время ожидания ответа одного счетчика");
+            this.toolTip1.SetToolTip(this.numericUpDownComWriteTimeout, "Время по прошествии которого происходит таймаут записи. Не используется в данной " +
+        "версии.");
             this.numericUpDownComWriteTimeout.Value = new decimal(new int[] {
             800,
             0,
@@ -329,7 +329,7 @@
             this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox1.Size = new System.Drawing.Size(611, 57);
+            this.groupBox1.Size = new System.Drawing.Size(611, 60);
             this.groupBox1.TabIndex = 49;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Индивидуальный блок";
@@ -357,11 +357,13 @@
             // checkBoxTcp
             // 
             this.checkBoxTcp.AutoSize = true;
-            this.checkBoxTcp.Location = new System.Drawing.Point(273, 37);
+            this.checkBoxTcp.Location = new System.Drawing.Point(260, 37);
             this.checkBoxTcp.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxTcp.Name = "checkBoxTcp";
-            this.checkBoxTcp.Size = new System.Drawing.Size(15, 14);
+            this.checkBoxTcp.Size = new System.Drawing.Size(47, 17);
             this.checkBoxTcp.TabIndex = 55;
+            this.checkBoxTcp.Text = "TCP";
+            this.toolTip1.SetToolTip(this.checkBoxTcp, "Активировать режим связи по TCP/IP");
             this.checkBoxTcp.UseVisualStyleBackColor = true;
             this.checkBoxTcp.CheckedChanged += new System.EventHandler(this.checkBoxTcp_CheckedChanged);
             // 
@@ -372,7 +374,7 @@
             this.textBoxPort.Name = "textBoxPort";
             this.textBoxPort.Size = new System.Drawing.Size(43, 20);
             this.textBoxPort.TabIndex = 54;
-            this.textBoxPort.Text = "4003";
+            this.textBoxPort.Text = "4002";
             // 
             // textBoxIp
             // 
@@ -381,7 +383,7 @@
             this.textBoxIp.Name = "textBoxIp";
             this.textBoxIp.Size = new System.Drawing.Size(75, 20);
             this.textBoxIp.TabIndex = 53;
-            this.textBoxIp.Text = "192.168.4.1";
+            this.textBoxIp.Text = "192.168.23.53";
             // 
             // button4
             // 
@@ -392,6 +394,7 @@
             this.button4.Size = new System.Drawing.Size(49, 38);
             this.button4.TabIndex = 52;
             this.button4.Text = "Опросить";
+            this.toolTip1.SetToolTip(this.button4, "Опрос прибора с указанным слева серийным номером.");
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
@@ -451,23 +454,11 @@
             this.label5.TabIndex = 51;
             this.label5.Text = "ELF Apator";
             // 
-            // cbModePreVals
-            // 
-            this.cbModePreVals.AutoSize = true;
-            this.cbModePreVals.Location = new System.Drawing.Point(411, 44);
-            this.cbModePreVals.Name = "cbModePreVals";
-            this.cbModePreVals.Size = new System.Drawing.Size(140, 17);
-            this.cbModePreVals.TabIndex = 52;
-            this.cbModePreVals.Text = "Режим предустановки";
-            this.cbModePreVals.UseVisualStyleBackColor = true;
-            this.cbModePreVals.CheckedChanged += new System.EventHandler(this.cbModePreVals_CheckedChanged);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(629, 456);
-            this.Controls.Add(this.cbModePreVals);
+            this.ClientSize = new System.Drawing.Size(631, 464);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.pictureBoxLogo);
             this.Controls.Add(this.groupBox1);
@@ -537,7 +528,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown numericUpDownComWriteTimeout;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.CheckBox cbModePreVals;
     }
 }
 

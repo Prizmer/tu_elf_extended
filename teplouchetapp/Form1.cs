@@ -27,7 +27,7 @@ namespace elfextendedapp
 
             this.Text = FORM_TEXT_DEFAULT;
 
-            DeveloperMode = false;
+            DeveloperMode = true;
             if (DeveloperMode) this.Height -= groupBox1.Height;
 
             InProgress = false;
@@ -127,12 +127,12 @@ namespace elfextendedapp
                 {
                     comboBoxComPorts.Enabled = true;
                     buttonPoll.Enabled = true;
-                    if (!cbModePreVals.Checked) buttonPing.Enabled = true;
+                    if (!PredefineImpulseInitialsMode) buttonPing.Enabled = true;
                     buttonImport.Enabled = true;
                     buttonExport.Enabled = true;
                     buttonStop.Enabled = false;
                     numericUpDownComReadTimeout.Enabled = true;
-                    checkBoxPollOffline.Enabled = true;
+                    if (!PredefineImpulseInitialsMode) checkBoxPollOffline.Enabled = true;
                     label1.Enabled = true;
                 }
             }
@@ -145,7 +145,7 @@ namespace elfextendedapp
             const string METER_WAIT = "Ждите";
             const string REPEAT_REQUEST = "Повтор";
 
-            const string FORM_TEXT_DEFAULT = "ELF Apator - расширенная программа опроса v.1.1";
+            const string FORM_TEXT_DEFAULT = "ELF Apator - программа группового опроса v.1.2";
             const string FORM_TEXT_DEMO_OFF = " - демо режим ОТКЛЮЧЕН";
             const string FORM_TEXT_DEV_ON = " - режим разработчика";
 
@@ -347,7 +347,7 @@ namespace elfextendedapp
             column.Caption = "Счетчик";
             column.ColumnName = "colFactory";
 
-            if (!cbModePreVals.Checked)
+            if (!PredefineImpulseInitialsMode)
             {
                 column = dt.Columns.Add();
                 column.DataType = typeof(string);
@@ -398,7 +398,7 @@ namespace elfextendedapp
                 paramCodes.Add(5);
             }
 
-            if (!cbModePreVals.Checked)
+            if (!PredefineImpulseInitialsMode)
             {
                 column = dt.Columns.Add();
                 column.DataType = typeof(string);
@@ -451,11 +451,42 @@ namespace elfextendedapp
                 doStopProcess = false;
                 buttonStop.Enabled = true;
 
-                dt = new DataTable();
-                createMainTable(ref dt);
-
                 string fileName = ofd1.FileName;
                 Workbook book = Workbook.Load(fileName);
+
+                //auto detection of working mode
+                object typeDirectiveVal = "";
+
+                try
+                {
+                    Row zeroRow = book.Worksheets[0].Cells.GetRow(0);
+                    typeDirectiveVal = zeroRow.GetCell(0).Value;
+                }
+                catch (Exception ex)
+                {
+                    return;
+                }
+
+                if (typeDirectiveVal.ToString() == "type=predefine")
+                {
+                    DialogResult dr =
+                        MessageBox.Show("Таблица предназначена для переопределения начальных значений импульсных входов. Использовать режим переопределения?", "Режим работы", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (dr == System.Windows.Forms.DialogResult.Yes)
+                    {
+                        PredefineImpulseInitialsMode = true;
+                    }
+                    else
+                    {
+                        PredefineImpulseInitialsMode = false;
+                    }
+                }
+                else
+                {
+                    PredefineImpulseInitialsMode = false;
+                }
+
+                dt = new DataTable();
+                createMainTable(ref dt);
 
                 int rowsInFile = 0;
                 for (int i = 0; i < book.Worksheets.Count; i++)
@@ -467,10 +498,13 @@ namespace elfextendedapp
                 toolStripProgressBar1.Step = 1;
 
 
+
+
                 //filling internal data table with *.xls file data according to *.config file
                 for (int i = 0; i < 1; i++)
                 {
                     Worksheet sheet = book.Worksheets[i];
+
                     for (int rowIndex = firstRowIndex; rowIndex <= sheet.Cells.LastRowIndex; rowIndex++)
                     {
                         if (doStopProcess)
@@ -840,7 +874,7 @@ namespace elfextendedapp
             DataTable dt = pmaInp.dt;
             List<int> incorrectRows = pmaInp.incorrectRows;
 
-            if (cbModePreVals.Checked)
+            if (PredefineImpulseInitialsMode)
             {
                 setPreVals(pmaInp);
                 return;
@@ -1463,18 +1497,27 @@ namespace elfextendedapp
             Process.Start("http://prizmer.ru/");
         }
 
+        bool _predefineImpulseInitialsMode = false;
+        bool PredefineImpulseInitialsMode
+        {
+            get { return _predefineImpulseInitialsMode; }
+            set
+            {
+                _predefineImpulseInitialsMode = value;
+                if (value)
+                {
+                    buttonPoll.Text = "Старт";
+                }
+                else
+                {
+                    buttonPoll.Text = "Опрос";
+                }
+            }
+        }
+
         private void cbModePreVals_CheckedChanged(object sender, EventArgs e)
         {
-            if (((CheckBox)sender).Checked)
-            {
-                buttonPoll.Text = "Старт";
-                buttonPing.Enabled = false;
-            }
-            else
-            {
-                buttonPoll.Text = "Опрос";
-                buttonPing.Enabled = true;
-            }
+
         }
     }
 }
