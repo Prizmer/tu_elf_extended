@@ -51,13 +51,13 @@
             this.checkBoxPollOffline = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.numericUpDownComWriteTimeout = new System.Windows.Forms.NumericUpDown();
+            this.checkBoxTcp = new System.Windows.Forms.CheckBox();
+            this.button4 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.checkBoxTcp = new System.Windows.Forms.CheckBox();
             this.textBoxPort = new System.Windows.Forms.TextBox();
             this.textBoxIp = new System.Windows.Forms.TextBox();
-            this.button4 = new System.Windows.Forms.Button();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -313,6 +313,32 @@
             0,
             0});
             // 
+            // checkBoxTcp
+            // 
+            this.checkBoxTcp.AutoSize = true;
+            this.checkBoxTcp.Location = new System.Drawing.Point(260, 37);
+            this.checkBoxTcp.Margin = new System.Windows.Forms.Padding(2);
+            this.checkBoxTcp.Name = "checkBoxTcp";
+            this.checkBoxTcp.Size = new System.Drawing.Size(47, 17);
+            this.checkBoxTcp.TabIndex = 55;
+            this.checkBoxTcp.Text = "TCP";
+            this.toolTip1.SetToolTip(this.checkBoxTcp, "Активировать режим связи по TCP/IP");
+            this.checkBoxTcp.UseVisualStyleBackColor = true;
+            this.checkBoxTcp.CheckedChanged += new System.EventHandler(this.checkBoxTcp_CheckedChanged);
+            // 
+            // button4
+            // 
+            this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button4.Location = new System.Drawing.Point(152, 14);
+            this.button4.Margin = new System.Windows.Forms.Padding(2);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(49, 38);
+            this.button4.TabIndex = 52;
+            this.button4.Text = "Опросить";
+            this.toolTip1.SetToolTip(this.button4, "Опрос прибора с указанным слева серийным номером.");
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.label4);
@@ -354,19 +380,6 @@
             this.label3.TabIndex = 57;
             this.label3.Text = "мс";
             // 
-            // checkBoxTcp
-            // 
-            this.checkBoxTcp.AutoSize = true;
-            this.checkBoxTcp.Location = new System.Drawing.Point(260, 37);
-            this.checkBoxTcp.Margin = new System.Windows.Forms.Padding(2);
-            this.checkBoxTcp.Name = "checkBoxTcp";
-            this.checkBoxTcp.Size = new System.Drawing.Size(47, 17);
-            this.checkBoxTcp.TabIndex = 55;
-            this.checkBoxTcp.Text = "TCP";
-            this.toolTip1.SetToolTip(this.checkBoxTcp, "Активировать режим связи по TCP/IP");
-            this.checkBoxTcp.UseVisualStyleBackColor = true;
-            this.checkBoxTcp.CheckedChanged += new System.EventHandler(this.checkBoxTcp_CheckedChanged);
-            // 
             // textBoxPort
             // 
             this.textBoxPort.Location = new System.Drawing.Point(213, 34);
@@ -374,6 +387,7 @@
             this.textBoxPort.Name = "textBoxPort";
             this.textBoxPort.Size = new System.Drawing.Size(43, 20);
             this.textBoxPort.TabIndex = 54;
+            this.textBoxPort.Tag = "port";
             this.textBoxPort.Text = "4002";
             // 
             // textBoxIp
@@ -383,20 +397,9 @@
             this.textBoxIp.Name = "textBoxIp";
             this.textBoxIp.Size = new System.Drawing.Size(75, 20);
             this.textBoxIp.TabIndex = 53;
+            this.textBoxIp.Tag = "ip";
             this.textBoxIp.Text = "192.168.23.53";
-            // 
-            // button4
-            // 
-            this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button4.Location = new System.Drawing.Point(152, 14);
-            this.button4.Margin = new System.Windows.Forms.Padding(2);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(49, 38);
-            this.button4.TabIndex = 52;
-            this.button4.Text = "Опросить";
-            this.toolTip1.SetToolTip(this.button4, "Опрос прибора с указанным слева серийным номером.");
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.textBoxIp.Leave += new System.EventHandler(this.textBoxIp_Leave);
             // 
             // richTextBox1
             // 

@@ -1521,5 +1521,16 @@ namespace elfextendedapp
         {
 
         }
+
+        private void textBoxIp_Leave(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxesIpAndPort_Leave(object sender, EventArgs e)
+        {
+            setVirtualSerialPort();
+        }
+
     }
 }
