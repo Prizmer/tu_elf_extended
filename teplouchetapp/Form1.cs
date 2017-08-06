@@ -851,6 +851,10 @@ namespace elfextendedapp
                         Meter.ChangeImpulseInputDefaultValue(1, imp1Val);
                         Thread.Sleep(10);
                         Meter.ChangeImpulseInputDefaultValue(2, imp2Val);
+                        Thread.Sleep(10);
+                        Meter.ChangeImpulseInputsValPrice(1, imp1ValPrice);
+                        Thread.Sleep(10);
+                        Meter.ChangeImpulseInputsValPrice(2, imp2ValPrice);
                     }
                 }
 
